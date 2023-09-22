@@ -1,0 +1,28 @@
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Formulario de Creación de Producto</title>
+	<link rel="stylesheet" href="/static/forms.css">
+</head>
+<body>
+	<div class="row">
+		<div>
+			<form method="POST" action="/products/create"> <!-- Cambia la acción al endpoint de creación de productos -->
+				<h1>Creación de Producto</h1>
+				<fieldset>
+					<legend><span class="numero">1</span>Información del Producto</legend>
+					<label for="title">Título:</label>
+					<input type="text" id="title" name="title" required>
+                    <label for="description">Descripción:</label>
+					<textarea id="description" name="description" required></textarea>
+                    <label for="photo">URL de la Foto:</label>
+					<input type="text" id="photo" name="photo" required>
+                    <label for="price">Precio:</label>
+					<input type="number" id="price" name="price" step="0.01" required>
+				</fieldset>
+				<button type="submit">Crear Producto</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
