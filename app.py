@@ -29,6 +29,13 @@ def get_product_list():
     products = cursor.fetchall()
     return products
 
+def get_product_by_id(id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT title, description, photo, price FROM products WHERE id = ?', (id,))
+    product = cursor.fetchone()
+    return product
+
 @app.route("/")
 def hello_world():
     return "<h1>Página Principal!</h1>"
@@ -79,6 +86,14 @@ def resource_create():
         
         return redirect(url_for('gracias'))
     return render_template('create.html')
+
+@app.route('/products/read/<int:id>')
+def product_read(id):
+    product = get_product_by_id(id)
+    if product is None:
+        flash('Producto no encontrado', 'error')
+        return redirect(url_for('list_products'))
+    return render_template('read.html', product=product)
 
 if __name__ == '__main__':
     app.run()
