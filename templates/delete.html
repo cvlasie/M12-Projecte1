@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Productos - Borrar</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <nav>
+        <section class="flex_content">
+            <a class="link" href="/"><strong class="logo"><em class="stroke">Cla</em>udiu<em>.</em></a></strong>
+            <a href="/products/create">Registro Productos</a>
+            <a href="/products/list">Lista Productos</a>
+        </section>
+    </nav>
+    <div class="container">
+        <h1>Página De Eliminación Del Producto {{ resource[1] }}</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Foto</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ resource[0] }}</td>
+                    <td>{{ resource[1] }}</td>
+                    <td>{{ resource[2] }}</td>
+                    <td>{{ resource[3] }}</td>
+                    <td>{{ resource[4] }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <form method="POST" action="/products/delete/{{ resource[0] }}">
+            <button class="botoneliminar">
+                <span>Eliminar Producto</span>
+            </button>
+        </form>
+        <footer>
+            <div class="footercaja">
+                <div class="infoprojecte">
+                    <p>Durante esta actividad programaremos un gestor de negocios enfocado a empresas pequeñas y medianas
+                        (pymes) con funcionalidades básicas. En este sentido, desarrollaremos un proyecto web con el
+                        framework Flask</p>
+                </div>
+                <div class="infocaja">
+                    <hr>
+                    <div class="infocajaposi">
+                        <p><a href="/contacte">Contacte</a></p>
+                        <p><a href="#">Avis Legal</a></p>
+                        <p><a href="#">Política de privacidad</a></p>
+                        <p><a href="#">Política de cookies</a></p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

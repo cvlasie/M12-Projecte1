@@ -16,16 +16,10 @@ def get_db():
         db = g._database = sqlite3.connect('M12-Practica01.db')
     return db
 
-@app.teardown_appcontext
-def close_db(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
 def get_product_list():
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT title, description, photo, price FROM products')
+    cursor.execute('SELECT id, title, description, photo, price FROM products')
     products = cursor.fetchall()
     return products
 
@@ -37,8 +31,8 @@ def get_product_by_id(id):
     return product
 
 @app.route("/")
-def hello_world():
-    return "<h1>Página Principal!</h1>"
+def index():
+    return render_template('index.html')
 
 @app.route('/gracias')
 def gracias():
@@ -94,6 +88,65 @@ def product_read(id):
         flash('Producto no encontrado', 'error')
         return redirect(url_for('list_products'))
     return render_template('read.html', product=product)
+
+@app.route('/products/update/<int:id>', methods=["GET", "POST"])
+def products_update(id):
+    if request.method == 'GET':
+        # Obtén los datos del producto de la base de datos SQLite
+        product = get_product_by_id(id)
+        
+        if product is None:
+            flash('Producto no encontrado', 'error')
+            return redirect(url_for('list_products'))
+        
+        # Muestra los datos del producto en el formulario de actualización
+        return render_template('update.html', product_id=id, product=product)  # Pasamos el id como product_id en la respuesta
+    
+    elif request.method == 'POST':
+        # Obtén los datos del formulario
+        title = request.form.get("title")
+        description = request.form.get("description")
+        photo = request.form.get("photo")
+        price = request.form.get("price")
+        
+        # Actualiza los datos del producto en la base de datos SQLite
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('''
+            UPDATE products
+            SET title=?, description=?, photo=?, price=?
+            WHERE id=?
+        ''', (title, description, photo, price, id))
+        
+        # Commit para guardar los cambios en la base de datos
+        db.commit()
+        
+        return redirect(url_for('list_products'))
+
+@app.route('/products/delete/<int:id>', methods=["GET", "POST"])
+def products_delete(id):
+    if request.method == 'GET':
+        # Obtén los datos del producto de la base de datos SQLite
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('SELECT id, title, description, photo, price FROM products WHERE id = ?', (id,))
+        product = cursor.fetchone()
+
+        if product is None:
+            flash('Producto no encontrado', 'error')
+            return redirect(url_for('list_products'))
+
+        # Muestra los datos del producto en la página de eliminación
+        return render_template('delete.html', resource=product)
+
+    elif request.method == 'POST':
+        # Elimina el producto de la base de datos SQLite
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('DELETE FROM products WHERE id = ?', (id,))
+        db.commit()
+
+        return redirect(url_for('list_products'))
 
 if __name__ == '__main__':
     app.run()

@@ -3,7 +3,7 @@
 
 <head>
     <title>Productos - Ver</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
@@ -26,7 +26,7 @@
             <tr>
                 <td>{{ product[0] }}</td>
                 <td>{{ product[1] }}</td>
-                <td><img src="{{ product[2] }}" alt="Foto del Producto"></td>
+                <td><img src="{{ product[2] }}">{{ product[2] }}</td>
                 <td>{{ product[3] }}</td>
             </tr>
         </table>

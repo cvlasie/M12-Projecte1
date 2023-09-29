@@ -1,25 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Lista de Productos</title>
+    <title>Productos - Lista</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
-    <h1>Lista de Productos</h1>
-    <table>
-        <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Foto</th>
-            <th>Precio</th>
-        </tr>
-        {% for product in products %}
-        <tr>
-            <td>{{ product[0] }}</td>
-            <td>{{ product[1] }}</td>
-            <td><img src="{{ product[2] }}" width="100">{{ product[2] }}</td>
-            <td>{{ product[3] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <nav>
+        <section class="flex_content">
+            <a class="link" href="/"><strong class="logo"><em class="stroke">Cla</em>udiu<em>.</em></a></strong>
+            <a href="/products/create">Registro Productos</a>
+            <a href="/products/list">Lista Productos</a>
+        </section>
+    </nav>
+    <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producte</th>
+                    <th>Descripcio</th>
+                    <th>Imatge</th>
+                    <th>Preu</th>
+                    <th colspan="3">Opcions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product[1] }}</td>
+                    <td>{{ product[2] }}</td>
+                    <td><img src="{{ product[3] }}" width="100">{{ product[3] }}</td>
+                    <td>{{ product[4] }}</td>
+                    <td><a class="action" href="/products/read/{{ product[0] }}" title="Veure">👁️</a></td>
+                    <td><a class="action" href="/products/update/{{ product[0] }}" title="Editar">📝</a></td>
+                    <td><a class="action" href="/products/delete/{{ product[0] }}" title="Eliminar">❌</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="/products/create">
+            <button class="botoañadir">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="none" d="M0 0h24v24H0z"></path>
+                    <path fill="currentColor" d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"></path>
+                </svg>
+                <span>Añadir Producto</span>
+            </button>
+        </a>
+    </div>
+    <footer>
+        <div class="footercaja">
+            <div class="infoprojecte">
+                <p>Durant aquesta activitat programarem un gestor de negocis enfocat a empreses petites i mitjanes
+                    (pimes) amb funcionalitats bàsiques. En aquest sentit, desenvoluparem un projecte web amb el
+                    framework Flask</p>
+            </div>
+            <div class="infocaja">
+                <hr>
+                <div class="infocajaposi">
+                    <p><a href="/contacte">Contacte</a></p>
+                    <p><a href="#">Avis Legal</a></p>
+                    <p><a href="#">Política de privacidad</a>
+                    <p><a href="#">Política de cookies</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
+
 </html>
