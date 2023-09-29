@@ -1,15 +1,23 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, g
 import sqlite3
+from flask import send_from_directory
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 
 # SECRET_KEY: clau d'encriptació de la cookie
 app.config.update(
-    SECRET_KEY='secret_xxx'
+    SECRET_KEY='secret_xxx',
+    UPLOAD_FOLDER='upload'  # Carpeta de carga de archivos
 )
 
 # Función para obtener la lista de productos
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -29,6 +37,10 @@ def get_product_by_id(id):
     cursor.execute('SELECT title, description, photo, price FROM products WHERE id = ?', (id,))
     product = cursor.fetchone()
     return product
+
+# Función para verificar la extensión del archivo
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png', 'gif'}
 
 @app.route("/")
 def index():
@@ -54,7 +66,26 @@ def resource_create():
         # Obtén los datos del formulario
         title = request.form.get("title")
         description = request.form.get("description")
-        photo = request.form.get("photo")
+        
+        # Verifica si se ha proporcionado un archivo
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            
+            # Verifica si el archivo tiene un nombre y es una extensión de archivo permitida
+            if photo.filename != '' and allowed_file(photo.filename):
+                # Genera un nombre seguro para el archivo
+                filename = secure_filename(photo.filename)
+                
+                # Guarda el archivo en la carpeta de carga
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                flash('Formato de archivo no válido', 'error')
+                return redirect(url_for('resource_create'))
+        else:
+            flash('No se ha proporcionado un archivo', 'error')
+            return redirect(url_for('resource_create'))
+        
+        # Obtén el precio del formulario
         price = request.form.get("price")
         
         # Obtiene la fecha y hora actual
@@ -66,7 +97,7 @@ def resource_create():
         cursor.execute('''
             INSERT INTO products (title, description, photo, price, created, updated)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (title, description, photo, price, current_datetime, current_datetime))
+        ''', (title, description, filename, price, current_datetime, current_datetime))
         
         # Commit para guardar los cambios en la base de datos
         db.commit()
@@ -106,7 +137,26 @@ def products_update(id):
         # Obtén los datos del formulario
         title = request.form.get("title")
         description = request.form.get("description")
-        photo = request.form.get("photo")
+        
+        # Verifica si se ha proporcionado un archivo
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            
+            # Verifica si el archivo tiene un nombre y es una extensión de archivo permitida
+            if photo.filename != '' and allowed_file(photo.filename):
+                # Genera un nombre seguro para el archivo
+                filename = secure_filename(photo.filename)
+                
+                # Guarda el archivo en la carpeta de carga
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                flash('Formato de archivo no válido', 'error')
+                return redirect(url_for('products_update', id=id))
+        else:
+            flash('No se ha proporcionado un archivo', 'error')
+            return redirect(url_for('products_update', id=id))
+        
+        # Obtén el precio del formulario
         price = request.form.get("price")
         
         # Actualiza los datos del producto en la base de datos SQLite
@@ -116,7 +166,7 @@ def products_update(id):
             UPDATE products
             SET title=?, description=?, photo=?, price=?
             WHERE id=?
-        ''', (title, description, photo, price, id))
+        ''', (title, description, filename, price, id))
         
         # Commit para guardar los cambios en la base de datos
         db.commit()

@@ -7,7 +7,7 @@
 <body>
 	<div class="row">
 		<div>
-			<form method="POST" action="/products/create"> <!-- Cambia la acción al endpoint de creación de productos -->
+			<form method="POST" action="/products/create" enctype="multipart/form-data">
 				<h1>Creación de Producto</h1>
 				<fieldset>
 					<legend><span class="numero">1</span>Información del Producto</legend>
@@ -15,10 +15,10 @@
 					<input type="text" id="title" name="title" required>
                     <label for="description">Descripción:</label>
 					<textarea id="description" name="description" required></textarea>
-                    <label for="photo">URL de la Foto:</label>
-					<input type="text" id="photo" name="photo" required>
+					<label for="photo">Foto:</label>
+					<input type="file" id="photo" name="photo" accept="image/*" required>					
                     <label for="price">Precio:</label>
-					<input type="number" id="price" name="price" step="0.01" required>
+					<input type="number" id="price" name="price" required>
 				</fieldset>
 				<button type="submit">Crear Producto</button>
 			</form>
