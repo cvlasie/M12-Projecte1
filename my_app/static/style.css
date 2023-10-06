@@ -1,0 +1,242 @@
+body {
+    font-family: 'Nunito', sans-serif;
+    background-image:url("/static/pattern.png");
+}
+
+.overlap {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+}
+
+.container {
+    background-color: rgb(255, 255, 255);
+    margin-top: 50px;
+    padding: 50px;
+    border-radius: 10px;
+    border: 2px solid rgb(0, 0, 0);
+    box-shadow: 4px 1px 23px #000000;
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="date"],
+input[type="datetime"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="time"],
+input[type="url"],
+textarea,
+select {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    font-size: 16px;
+    padding: 7px 20px;
+    margin: 0;
+    outline: 0;
+    width: 50%;
+    background-color: #e8eeef;
+    color: #727783;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
+}
+
+.btn {
+    background-color: #000000;
+    border: none;
+    color: white;
+    font-weight: bolder;
+    padding: 7px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.table {
+    margin-bottom: 20px;
+    border-collapse: collapse;
+    outline: solid 2px rgb(0, 0, 0);
+}
+
+.table th {
+    color: white;
+    background-color: black;
+    margin: 20px;
+    padding-right: 30px;
+}
+
+.table td {
+    color: white;
+    background-color: rgb(126, 126, 126);
+    padding-right: 30px;
+}
+
+.action {
+    text-decoration: none;
+}
+
+@font-face {
+    font-family: "Akkurat-Regular";
+    src:url("../font/akkurat/lineto-akkurat-regular.eot");
+    src:url("../font/akkurat/lineto-akkurat-regular.eot?#iefix") format("embedded-opentype"),
+        url("../font/akkurat/lineto-akkurat-regular.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.container h1 {
+    text-decoration: underline;
+}
+
+.botoañadir {
+    display: flex;
+    align-items: center;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 16px;
+    padding: 0.7em 1.4em 0.7em 1.1em;
+    color: white;
+    background: #ad5389;
+    background: linear-gradient(0deg, rgba(20,167,62,1) 0%, rgba(102,247,113,1) 100%);
+    border: none;
+    box-shadow: 0 0.7em 1.5em -0.5em #14a73e98;
+    letter-spacing: 0.05em;
+    border-radius: 20em;
+  }
+  
+.botoañadir svg {
+    margin-right: 6px;
+}
+
+.botoañadir:hover {
+    box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
+}
+  
+.botoañadir:active {
+    box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+}
+
+.botoneliminar {
+    display: flex;
+    align-items: center;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 16px;
+    padding: 0.7em 1.4em 0.7em 1.1em;
+    color: white;
+    background: #ad5389;
+    background: linear-gradient(0deg, rgb(167, 20, 20) 0%, rgb(247, 102, 102) 100%);
+    border: none;
+    box-shadow: 0 0.7em 1.5em -0.5em #a7141498;
+    letter-spacing: 0.05em;
+    border-radius: 20em;
+  }
+
+.botoneliminar:hover {
+    box-shadow: 0 0.5em 1.5em -0.5em #a7141498;
+}
+  
+.botoneliminar:active {
+    box-shadow: 0 0.3em 1em -0.5em #a7141498;
+}
+
+a, span {
+    text-decoration: none;
+}
+
+.footercaja  {
+    display: flex;
+    position: fixed;
+    overflow: hidden;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #080707;
+    color: #757575;
+    border-top: 2px solid #2b0bb9;
+}
+
+.footercaja p, a {
+    font-weight: bold;
+    color: #757575;
+}
+
+.infocaja {
+    display: flex;
+    text-align: center;
+    margin-left: 10px;
+    padding-right: 10px; 
+}
+
+hr {
+    border: 1px solid #757575;
+}
+
+.infocajaposi {
+    padding-left: 10px;
+}
+
+.infoprojecte {
+    text-align:left;
+    text-align-last: left;
+    width: 30%;
+    padding-left: 30px;
+
+}
+
+nav {
+    overflow: hidden;
+    width: 100%;
+    background-color: #080707;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #190061; 
+}
+  
+nav a {
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 12px 8px;
+    text-decoration: none;
+}
+
+nav a:hover{
+    color: blue;
+}
+
+.link:hover{
+    color: white;
+}
+
+.flex_content{
+    width:100%;
+    position:relative;
+    color: white;
+}
+
+.logo{
+    font-size:1.6em;
+    margin-left: 10px;
+}
+
+.stroke{
+    color:transparent;
+    -webkit-text-stroke: 1.5px blue;
+}
+
+em{
+    font-style:normal;
+    color:blue;
+}
