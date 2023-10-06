@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,23 +8,22 @@
 <body>
     <div class="row">
         <div>
-            <form method="POST" action="/products/update/{{ product.id }}" enctype="multipart/form-data">
-                <h1>Editar Producto con ID: {{ product_id }}</h1>
+            <form method="POST" action="/products/update/{{ product_id }}">
+                <h1>Editar Producto con ID: {{ product_id }}</h1> <!-- Mostrar el ID aquí -->
                 <fieldset>
                     <legend><span class="numero">1</span>Información Básica</legend>
                     <label for="title">Título:</label>
-                    <input type="text" id="title" name="title" value="{{ product.title }}" required>
+                    <input type="text" id="title" name="title" required>
                     <label for="description">Descripción:</label>
-                    <textarea id="description" name="description" required>{{ product.description }}</textarea>
-                    <label for="photo">Foto:</label>
-                    <input type="file" id="photo" name="photo" accept="image/*">
+                    <textarea id="description" name="description" required></textarea>
+                    <label for="photo">URL de la Foto:</label>
+                    <input type="text" id="photo" name="photo">
                     <label for="price">Precio:</label>
-                    <input type="number" id="price" name="price" value="{{ product.price }}" step="0.01" required>
+                    <input type="number" id="price" name="price" step="0.01" required>
                 </fieldset>
                 <button type="submit">Editar</button>
             </form>
         </div>
     </div>
 </body>
-
 </html>
