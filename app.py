@@ -1,46 +1,52 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, g
-import sqlite3
-from flask import send_from_directory
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__)
 
-# SECRET_KEY: clau d'encriptació de la cookie
-app.config.update(
-    SECRET_KEY='secret_xxx',
-    UPLOAD_FOLDER='upload'  # Carpeta de carga de archivos
-)
+# ruta absoluta d'aquesta carpeta
+basedir = os.path.abspath(os.path.dirname(__file__)) 
+
+# Configuración de la base de datos SQLite usando SQLAlchemy
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + basedir + "/M12-Practica01.db"
+db = SQLAlchemy(app)
+
+# Configuración adicional
+app.config['SECRET_KEY'] = 'secret_xxx'
+app.config['UPLOAD_FOLDER'] = 'upload'
+
+# Definición del modelo Product
+class Product(db.Model):
+    __tablename__ = "products"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    photo = db.Column(db.String(255), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    created = db.Column(db.DateTime, default=datetime.utcnow)
+    updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # Función para obtener la lista de productos
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect('M12-Practica01.db')
-    return db
-
 def get_product_list():
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT id, title, description, photo, price FROM products')
-    products = cursor.fetchall()
+    products = Product.query.with_entities(Product.id, Product.title, Product.description, Product.photo, Product.price).all()
     return products
 
+# Función para obtener un producto por su ID
 def get_product_by_id(id):
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT title, description, photo, price FROM products WHERE id = ?', (id,))
-    product = cursor.fetchone()
-    return product
+    product = Product.query.filter_by(id=id).first()
+    if product:
+        return product.title, product.description, product.photo, product.price
+    return None
 
 # Función para verificar la extensión del archivo
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png', 'gif'}
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route("/")
 def index():
@@ -88,26 +94,15 @@ def resource_create():
         # Obtén el precio del formulario
         price = request.form.get("price")
         
-        # Obtiene la fecha y hora actual
-        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Inserta los datos en la base de datos y guarda la fecha de creación
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('''
-            INSERT INTO products (title, description, photo, price, created, updated)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (title, description, filename, price, current_datetime, current_datetime))
-        
-        # Commit para guardar los cambios en la base de datos
-        db.commit()
-        
-        # Obtén el ID del producto recién registrado
-        cursor.execute("SELECT last_insert_rowid()")
-        product_id = cursor.fetchone()[0]
-
-        # Cierra el cursor
-        cursor.close()
+        # Crea un nuevo producto en la base de datos
+        new_product = Product(
+            title=title,
+            description=description,
+            photo=filename,
+            price=price
+        )
+        db.session.add(new_product)
+        db.session.commit()
         
         return redirect(url_for('gracias'))
     return render_template('create.html')
@@ -122,81 +117,65 @@ def product_read(id):
 
 @app.route('/products/update/<int:id>', methods=["GET", "POST"])
 def products_update(id):
-    if request.method == 'GET':
-        # Obtén los datos del producto de la base de datos SQLite
-        product = get_product_by_id(id)
-        
-        if product is None:
-            flash('Producto no encontrado', 'error')
-            return redirect(url_for('list_products'))
-        
-        # Muestra los datos del producto en el formulario de actualización
-        return render_template('update.html', product_id=id, product=product)  # Pasamos el id como product_id en la respuesta
+    product = Product.query.get(id)
     
-    elif request.method == 'POST':
+    if product is None:
+        flash('Producto no encontrado', 'error')
+        return redirect(url_for('list_products'))
+    
+    if request.method == 'POST':
         # Obtén los datos del formulario
         title = request.form.get("title")
         description = request.form.get("description")
-        
-        # Verifica si se ha proporcionado un archivo
-        if 'photo' in request.files:
-            photo = request.files['photo']
-            
-            # Verifica si el archivo tiene un nombre y es una extensión de archivo permitida
-            if photo.filename != '' and allowed_file(photo.filename):
-                # Genera un nombre seguro para el archivo
-                filename = secure_filename(photo.filename)
-                
-                # Guarda el archivo en la carpeta de carga
-                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            else:
-                flash('Formato de archivo no válido', 'error')
-                return redirect(url_for('products_update', id=id))
-        else:
-            flash('No se ha proporcionado un archivo', 'error')
-            return redirect(url_for('products_update', id=id))
-        
-        # Obtén el precio del formulario
         price = request.form.get("price")
         
-        # Actualiza los datos del producto en la base de datos SQLite
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('''
-            UPDATE products
-            SET title=?, description=?, photo=?, price=?
-            WHERE id=?
-        ''', (title, description, filename, price, id))
+        # Obtén el archivo de imagen cargado
+        photo = request.files.get("photo")
         
-        # Commit para guardar los cambios en la base de datos
-        db.commit()
-        
+        # Verifica si se cargó una nueva imagen y procesa si es necesario
+        if photo:
+            # Guarda la nueva imagen en la carpeta de carga de archivos
+            photo_filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
+            
+            # Actualiza los datos del producto
+            product.title = title
+            product.description = description
+            product.photo = photo_filename
+            product.price = price
+        else:
+            # Si no se cargó una nueva imagen, actualiza los otros campos
+            product.title = title
+            product.description = description
+            product.price = price
+
+        # Actualiza la fecha de actualización
+        product.updated = datetime.utcnow()
+
+        # Guarda los cambios en la base de datos
+        db.session.commit()
+
         return redirect(url_for('list_products'))
+    
+    return render_template('update.html', product=product)
+
 
 @app.route('/products/delete/<int:id>', methods=["GET", "POST"])
 def products_delete(id):
-    if request.method == 'GET':
-        # Obtén los datos del producto de la base de datos SQLite
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('SELECT id, title, description, photo, price FROM products WHERE id = ?', (id,))
-        product = cursor.fetchone()
-
-        if product is None:
-            flash('Producto no encontrado', 'error')
-            return redirect(url_for('list_products'))
-
-        # Muestra los datos del producto en la página de eliminación
-        return render_template('delete.html', resource=product)
-
-    elif request.method == 'POST':
-        # Elimina el producto de la base de datos SQLite
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('DELETE FROM products WHERE id = ?', (id,))
-        db.commit()
+    product = Product.query.get(id)
+    
+    if product is None:
+        flash('Producto no encontrado', 'error')
+        return redirect(url_for('list_products'))
+    
+    if request.method == 'POST':
+        # Elimina el producto de la base de datos
+        db.session.delete(product)
+        db.session.commit()
 
         return redirect(url_for('list_products'))
+    
+    return render_template('delete.html', resource=product)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, use_debugger=False, use_reloader=False)

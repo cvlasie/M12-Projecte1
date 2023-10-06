@@ -15,7 +15,7 @@
         </section>
     </nav>
     <div class="container">
-        <h1>Página De Eliminación Del Producto {{ resource[1] }}</h1>
+        <h1>Página De Eliminación Del Producto {{ resource.title }}</h1>
         <table class="table">
             <thead>
                 <tr>
@@ -28,15 +28,17 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ resource[0] }}</td>
-                    <td>{{ resource[1] }}</td>
-                    <td>{{ resource[2] }}</td>
-                    <td>{{ resource[3] }}</td>
-                    <td>{{ resource[4] }}</td>
+                    <td>{{ resource.id }}</td>
+                    <td>{{ resource.title }}</td>
+                    <td>{{ resource.description }}</td>
+                    <td>
+                        <img class="productimg" src="{{ url_for('uploaded_file', filename=resource.photo) }}" width="100">
+                    </td>
+                    <td>{{ resource.price }}</td>
                 </tr>
             </tbody>
         </table>
-        <form method="POST" action="/products/delete/{{ resource[0] }}">
+        <form method="POST" action="/products/delete/{{ resource.id }}">
             <button class="botoneliminar">
                 <span>Eliminar Producto</span>
             </button>
