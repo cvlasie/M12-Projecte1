@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, Blueprint
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from flask_sqlalchemy import SQLAlchemy
 import os
 from .models import Product
 from . import db_manager as db
@@ -13,8 +12,13 @@ main_bp = Blueprint(
 
 app = Flask(__name__)
 
+# ruta absoluta d'aquesta carpeta
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 #Upload folder
-app.config['UPLOAD_FOLDER'] = 'upload'
+app.config['UPLOAD_FOLDER'] = 'my_app/upload'
+
+app.config['UPLOAD'] = 'upload'
 
 # Función para obtener la lista de productos
 def get_product_list():
@@ -34,7 +38,7 @@ def allowed_file(filename):
 
 @main_bp.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(app.config['UPLOAD'], filename)
 
 @main_bp.route("/")
 def index():
