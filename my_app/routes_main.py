@@ -1,32 +1,20 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, Blueprint
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import os
+from .models import Product
+from . import db_manager as db
+
+# Blueprint
+main_bp = Blueprint(
+    "main_bp", __name__, template_folder="templates", static_folder="static"
+)
 
 app = Flask(__name__)
 
-# ruta absoluta d'aquesta carpeta
-basedir = os.path.abspath(os.path.dirname(__file__)) 
-
-# Configuración de la base de datos SQLite usando SQLAlchemy
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + basedir + "/M12-Practica01.db"
-db = SQLAlchemy(app)
-
-# Configuración adicional
-app.config['SECRET_KEY'] = 'secret_xxx'
+#Upload folder
 app.config['UPLOAD_FOLDER'] = 'upload'
-
-# Definición del modelo Product
-class Product(db.Model):
-    __tablename__ = "products"
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    photo = db.Column(db.String(255), nullable=True)
-    price = db.Column(db.Float, nullable=False)
-    created = db.Column(db.DateTime, default=datetime.utcnow)
-    updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # Función para obtener la lista de productos
 def get_product_list():
@@ -44,29 +32,29 @@ def get_product_by_id(id):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png', 'gif'}
 
-@app.route('/uploads/<filename>')
+@main_bp.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route("/")
+@main_bp.route("/")
 def index():
     return render_template('index.html')
 
-@app.route('/gracias')
+@main_bp.route('/gracias')
 def gracias():
     return render_template('gracias.html')
 
-@app.route('/hello/')
-@app.route('/hello/<name>')
+@main_bp.route('/hello/')
+@main_bp.route('/hello/<name>')
 def hello(name=None):
     return render_template('hello.html', name=name)
 
-@app.route('/products/list')
+@main_bp.route('/products/list')
 def list_products():
     products = get_product_list()
     return render_template('list.html', products=products)
 
-@app.route('/products/create', methods=["GET", "POST"])
+@main_bp.route('/products/create', methods=["GET", "POST"])
 def resource_create():
     if request.method == 'POST':
         # Obtén los datos del formulario
@@ -86,10 +74,10 @@ def resource_create():
                 photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 flash('Formato de archivo no válido', 'error')
-                return redirect(url_for('resource_create'))
+                return redirect(url_for('main_bp.resource_create'))
         else:
             flash('No se ha proporcionado un archivo', 'error')
-            return redirect(url_for('resource_create'))
+            return redirect(url_for('main_bp.resource_create'))
         
         # Obtén el precio del formulario
         price = request.form.get("price")
@@ -104,24 +92,24 @@ def resource_create():
         db.session.add(new_product)
         db.session.commit()
         
-        return redirect(url_for('gracias'))
+        return redirect(url_for('main_bp.gracias'))
     return render_template('create.html')
 
-@app.route('/products/read/<int:id>')
+@main_bp.route('/products/read/<int:id>')
 def product_read(id):
     product = get_product_by_id(id)
     if product is None:
         flash('Producto no encontrado', 'error')
-        return redirect(url_for('list_products'))
+        return redirect(url_for('main_bp.list_products'))
     return render_template('read.html', product=product)
 
-@app.route('/products/update/<int:id>', methods=["GET", "POST"])
+@main_bp.route('/products/update/<int:id>', methods=["GET", "POST"])
 def products_update(id):
     product = Product.query.get(id)
     
     if product is None:
         flash('Producto no encontrado', 'error')
-        return redirect(url_for('list_products'))
+        return redirect(url_for('main_bp.list_products'))
     
     if request.method == 'POST':
         # Obtén los datos del formulario
@@ -155,27 +143,24 @@ def products_update(id):
         # Guarda los cambios en la base de datos
         db.session.commit()
 
-        return redirect(url_for('list_products'))
+        return redirect(url_for('main_bp.list_products'))
     
     return render_template('update.html', product=product)
 
 
-@app.route('/products/delete/<int:id>', methods=["GET", "POST"])
+@main_bp.route('/products/delete/<int:id>', methods=["GET", "POST"])
 def products_delete(id):
     product = Product.query.get(id)
     
     if product is None:
         flash('Producto no encontrado', 'error')
-        return redirect(url_for('list_products'))
+        return redirect(url_for('main_bp.list_products'))
     
     if request.method == 'POST':
         # Elimina el producto de la base de datos
         db.session.delete(product)
         db.session.commit()
 
-        return redirect(url_for('list_products'))
+        return redirect(url_for('main_bp.list_products'))
     
     return render_template('delete.html', resource=product)
-
-if __name__ == '__main__':
-    app.run(debug=True, use_debugger=False, use_reloader=False)

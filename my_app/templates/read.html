@@ -26,7 +26,7 @@
             <tr>
                 <td>{{ product[0] }}</td>
                 <td>{{ product[1] }}</td>
-                <td><img src="{{ url_for('uploaded_file', filename=product[2]) }}" width="100"></td>
+                <td><img src="{{ url_for('main_bp.uploaded_file', filename=product[2]) }}" width="100"></td>
                 <td>{{ product[3] }}</td>
             </tr>
         </table>

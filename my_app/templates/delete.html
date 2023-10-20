@@ -32,7 +32,7 @@
                     <td>{{ resource.title }}</td>
                     <td>{{ resource.description }}</td>
                     <td>
-                        <img class="productimg" src="{{ url_for('uploaded_file', filename=resource.photo) }}" width="100">
+                        <img class="productimg" src="{{ url_for('main_bp.uploaded_file', filename=resource.photo) }}" width="100">
                     </td>
                     <td>{{ resource.price }}</td>
                 </tr>
