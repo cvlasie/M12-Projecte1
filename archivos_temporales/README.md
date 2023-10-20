@@ -1,1 +1,0 @@
-### Aquest es el readme del nostre programa flask
